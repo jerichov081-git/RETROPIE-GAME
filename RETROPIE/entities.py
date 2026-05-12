@@ -5,23 +5,23 @@ from settings import *
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        # Use .convert() for better Pi 3 performance
-        self.image = pygame.Surface((24, 24)).convert() 
+        # .convert() optimizes the surface for the Raspberry Pi's CPU [cite: 1]
+        self.image = pygame.Surface((24, 24)).convert()
         self.image.fill(PLAYER_COLOR)
         self.rect = self.image.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2))
         
-        # Movement and Stats
+        # Movement Stats
         self.pos = pygame.math.Vector2(self.rect.center)
         self.vel = pygame.math.Vector2()
         self.speed = PLAYER_SPEED
         
-        # Health System
+        # Progression Stats
         self.max_hp = 100
         self.hp = 100
-        
-        # XP and Levels
         self.xp = 0
+        self.xp_next_level = 100
         self.level = 1
+        self.projectile_count = 1
         
         # Dash state
         self.dashing = False
@@ -40,7 +40,6 @@ class Player(pygame.sprite.Sprite):
             self.dash_timer = DASH_DURATION
 
     def update(self):
-        # Update position based on velocity
         if self.dashing:
             dash_dir = self.vel.normalize() if self.vel.length() > 0 else pygame.math.Vector2(0,0)
             self.pos += dash_dir * DASH_SPEED
@@ -49,20 +48,48 @@ class Player(pygame.sprite.Sprite):
         else:
             self.pos += self.vel
         
-        # This keeps the 'rect' updated for collision detection
         self.rect.center = self.pos
 
     def draw_health(self, screen):
-        # Draw health bar above player's head
-        bar_width = 30
-        bar_height = 5
-        # Center the bar over the screen center (since player is always centered)
+        # UI constants for the health bar
+        bar_width = 40
+        bar_height = 6
+        # Position the bar above the player (who is always at screen center)
         x = SCREEN_WIDTH // 2 - bar_width // 2
-        y = SCREEN_HEIGHT // 2 - 25
+        y = SCREEN_HEIGHT // 2 - 30
         
-        fill = (self.hp / self.max_hp) * bar_width
+        fill = (max(0, self.hp) / self.max_hp) * bar_width
         outline_rect = pygame.Rect(x, y, bar_width, bar_height)
         fill_rect = pygame.Rect(x, y, fill, bar_height)
         
         pygame.draw.rect(screen, (50, 50, 50), outline_rect)
-        pygame.draw.rect(screen, HEALTH_RED, fill_rect)
+        pygame.draw.rect(screen, (200, 30, 30), fill_rect)
+
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self, pos, target):
+        super().__init__()
+        self.image = pygame.Surface((20, 20)).convert()
+        self.image.fill(ENEMY_RED)
+        self.rect = self.image.get_rect(center=pos)
+        self.pos = pygame.math.Vector2(pos)
+        self.target = target
+        self.speed = random.uniform(1.5, 2.5)
+
+    def update(self):
+        # AI: Move towards player position
+        direction = (self.target.pos - self.pos)
+        if direction.length() > 0:
+            self.pos += direction.normalize() * self.speed
+        self.rect.center = self.pos
+
+class ExperienceGem(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        super().__init__()
+        self.image = pygame.Surface((8, 8)).convert()
+        self.image.fill(XP_COLOR)
+        self.rect = self.image.get_rect(center=pos)
+        self.pos = pygame.math.Vector2(pos)
+
+    def update(self):
+        # Standard gems stay stationary until collected
+        self.rect.center = self.pos
