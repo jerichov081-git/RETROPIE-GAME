@@ -25,20 +25,37 @@ class Player(pygame.sprite.Sprite):
         self.dashing = False
         self.dash_timer = 0
 
-    def update(self):
+    def get_input(self):
+        """Captures movement and dash input."""
         keys = pygame.key.get_pressed()
         self.vel.x = keys[pygame.K_d] - keys[pygame.K_a]
         self.vel.y = keys[pygame.K_s] - keys[pygame.K_w]
         
-        current_speed = DASH_SPEED if self.dashing else self.speed
         if self.vel.length() > 0:
-            self.pos += self.vel.normalize() * current_speed
-        
+            self.vel = self.vel.normalize() * self.speed
+
+        if keys[pygame.K_SPACE] and not self.dashing:
+            self.dashing = True
+            self.dash_timer = DASH_DURATION
+
+    def update(self):
         if self.dashing:
+            dash_dir = self.vel.normalize() if self.vel.length() > 0 else pygame.math.Vector2(0,0)
+            self.pos += dash_dir * DASH_SPEED
             self.dash_timer -= 1
             if self.dash_timer <= 0: self.dashing = False
-            
+        else:
+            self.pos += self.vel
         self.rect.center = self.pos
+
+    def draw_health(self, screen):
+        bar_width = 40
+        bar_height = 6
+        x = SCREEN_WIDTH // 2 - bar_width // 2
+        y = SCREEN_HEIGHT // 2 - 30
+        fill = (max(0, self.hp) / self.max_hp) * bar_width
+        pygame.draw.rect(screen, (50, 50, 50), (x, y, bar_width, bar_height))
+        pygame.draw.rect(screen, HEALTH_RED, (x, y, fill, bar_height))
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, pos, target, hp, is_boss=False):
