@@ -1,21 +1,28 @@
 import pygame
-import math
 import random
 from settings import *
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.Surface((24, 24))
+        self.image = pygame.Surface((24, 24)).convert()
         self.image.fill(PLAYER_COLOR)
         self.rect = self.image.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2))
+        
+        # Stats
         self.pos = pygame.math.Vector2(self.rect.center)
         self.vel = pygame.math.Vector2()
+        self.max_hp = 100
         self.hp = 100
         self.xp = 0
+        self.xp_next_level = 100
         self.level = 1
         
-        # Dash state
+        # Upgrade Stats
+        self.bonus_speed = 0
+        self.fire_rate_mod = 0
+        self.projectile_count = 1
+        
         self.dashing = False
         self.dash_timer = 0
 
@@ -24,8 +31,9 @@ class Player(pygame.sprite.Sprite):
         self.vel.x = keys[pygame.K_d] - keys[pygame.K_a]
         self.vel.y = keys[pygame.K_s] - keys[pygame.K_w]
         
+        speed = PLAYER_SPEED + self.bonus_speed
         if self.vel.length() > 0:
-            self.vel = self.vel.normalize() * PLAYER_SPEED
+            self.vel = self.vel.normalize() * speed
 
         if keys[pygame.K_SPACE] and not self.dashing:
             self.dashing = True
@@ -38,13 +46,12 @@ class Player(pygame.sprite.Sprite):
             if self.dash_timer <= 0: self.dashing = False
         else:
             self.pos += self.vel
-        
         self.rect.center = self.pos
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, pos, target):
         super().__init__()
-        self.image = pygame.Surface((20, 20))
+        self.image = pygame.Surface((20, 20)).convert()
         self.image.fill(ENEMY_RED)
         self.rect = self.image.get_rect(center=pos)
         self.pos = pygame.math.Vector2(pos)
@@ -52,9 +59,15 @@ class Enemy(pygame.sprite.Sprite):
         self.speed = random.uniform(1.5, 2.5)
 
     def update(self):
-        # Direction to player
         dir = (self.target.pos - self.pos)
         if dir.length() > 0:
-            dir = dir.normalize()
-            self.pos += dir * self.speed
+            self.pos += dir.normalize() * self.speed
         self.rect.center = self.pos
+
+class ExperienceGem(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        super().__init__()
+        self.image = pygame.Surface((8, 8)).convert()
+        self.image.fill(XP_COLOR)
+        self.rect = self.image.get_rect(center=pos)
+        self.pos = pygame.math.Vector2(pos)
