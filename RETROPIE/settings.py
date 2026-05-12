@@ -1,8 +1,10 @@
 import pygame
 
+# Performance & Display
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 FPS = 60 
+TILE_SIZE = 32
 
 # Colors
 DARK_GREY = (20, 20, 25)
@@ -16,13 +18,14 @@ HEALTH_RED = (200, 30, 30)
 PLAYER_SPEED = 4
 DASH_SPEED = 12
 DASH_DURATION = 15 
+SPAWN_RATE = 1000 
 
 # WAVE SYSTEM: [Time in Seconds, Spawn Rate, Enemy Health, Is Boss Wave]
 WAVES = [
-    [0, 1500, 20, False],   # Wave 1: Easy, 20 HP
-    [30, 1000, 40, False],  # Wave 2: Faster, 40 HP
-    [60, 2000, 500, True],  # Wave 3: BOSS APPEARS
-    [90, 800, 80, False],   # Wave 4: Swarm
+    [0, 1500, 20, False],   # Wave 1: Easy
+    [30, 1000, 40, False],  # Wave 2: Faster enemies
+    [60, 2000, 500, True],  # Wave 3: BOSS
+    [90, 800, 80, False],   # Wave 4: High density
 ]
 
 UPGRADES = {
