@@ -33,7 +33,7 @@ UPGRADES = {
     "Fire Rate": {"desc": "-20% Cooldown", "max": 5},
     "Health": {"desc": "Heal & +20 Max HP", "max": 5},
     "Projectiles": {"desc": "+1 Bullet", "max": 3},
-    "Lifesteal": {"desc": "5% Heal on Kill", "max": 3}
+    "Lifesteal": {"desc": "5% Heal on Kill", "max": 3},
     "Drone": {"desc": "Auto-firing companion", "max": 3},
     "Spinning Blade": {"desc": "Orbiting defense", "max": 4},
     "Minigun": {"desc": "High fire rate pistol", "max": 5},
