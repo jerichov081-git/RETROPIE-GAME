@@ -1,5 +1,6 @@
 import pygame
 import sys
+import random
 from settings import *
 from entities import Player, Enemy
 from weapons import Projectile
